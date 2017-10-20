@@ -14,11 +14,14 @@ class Vector {
   }
 
   times(multiplierVector = 1) {
+    // скобки можно убрать
     return new Vector((this.x * multiplierVector), (this.y * multiplierVector));
   }
 }
 //true
 class Actor {
+  // а зачем у всех аргументов в конце Actor?
+  // если использовать pos, size, speed код станет читаемее
   constructor(positionActor = new Vector(0, 0), sizeActor = new Vector(1, 1), speedActor = new Vector(0, 0)) {
     if (!((positionActor instanceof Vector)&&(sizeActor instanceof Vector)&&(speedActor instanceof Vector))) {
       throw new Error('Передан не вектор.');
@@ -57,6 +60,7 @@ class Actor {
     if (this === moveActor) {
       return false;
     }
+    // можно убрать скобки
     return (this.left < moveActor.right && this.top < moveActor.bottom &&
             this.right > moveActor.left && this.bottom > moveActor.top);
   }
@@ -64,18 +68,22 @@ class Actor {
 // true ???
 class Level {
   constructor(grid = [], actors = []) {
+    // лучше создать копию массива
     this.actors = actors;
     this.status = null;
     this.finishDelay = 1;
+    // лучше создать копию массива
     this.grid = grid;
     this.height = this.grid.length;
 
+    // можно намного короче, в скайпе напишу
     if (this.height === 0) {
       this.width = 0;
     } else {
       this.width = Math.max.apply(null, (this.grid.map((element)=> element.length)));
     }
 
+    // если у стрелочной функции один аргумент - скобки не нужны
     this.player = this.actors.find((actor) => actor.type === 'player');
   }
 
@@ -125,10 +133,13 @@ class Level {
   }
 
   removeActor(actor) {
+    // что будет, если объекта не окажется в массиве?
     this.actors.splice(this.actors.indexOf(actor), 1);
   }
 
   noMoreActors(typeActor) {
+    // форматирование поехало
+    // здесь лучше подходит другой метод, окторый возвращает true или false
       return (!this.actors.find(function(actor) {return actor.type === typeActor}));
   }
 
@@ -150,7 +161,9 @@ class Level {
 }
 //true ??
 class LevelParser {
+  // некорректное значение аргумента по-умолчанию, обратите внимание на тип
   constructor(charsDict = []) {
+    // это не копия объекта, вы с ней ничего не делаете
     let copyDict = charsDict;
     this.actorsLibrary = charsDict;
   }
@@ -160,6 +173,7 @@ class LevelParser {
   }
 
   obstacleFromSymbol(char) {
+    // не нужно создавать объект при каждом вызове функции
     let carrentlyDict = {'x': 'wall', '!': 'lava'};
     return carrentlyDict[char];
   }
@@ -195,6 +209,7 @@ class LevelParser {
     return actors;
   }
 
+  // не экономьте строки
   parse(plan) { return new Level(this.createGrid(plan), this.createActors(plan)); }
 }
 //true
@@ -251,6 +266,7 @@ class FireRain extends Fireball {
 class Coin extends Actor {
   constructor(position = new Vector(0, 0)) {
     super(position, new Vector(0.6, 0.6));
+    // pos должно задаваться через конструктор родительского класса
     this.pos = position.plus(new Vector(0.2, 0.1));
     this.springSpeed = 8;
     this.springDist = 0.07;
@@ -283,6 +299,7 @@ class Coin extends Actor {
 class Player extends Actor {
   constructor(position = new Vector(0, 0)) {
     super(position, new Vector(0.8, 1.5));
+    // pos должно задаваться через конструктор родительского класса
     this.pos = position.plus(new Vector(0, -0.5));
   }
 
