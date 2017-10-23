@@ -165,7 +165,6 @@ class LevelParser {
     arrayActors.forEach((itemY, y) => {
       itemY.split('').forEach((itemX, x) => {
         const constructorActors = this.actorFromSymbol(itemX);
-        // можно обратить условие и return, тогда переменную result можно объявить чуть ниже, ближе к использованию - исправил
         if (typeof constructorActors !== 'function') {
           return;
         }
