@@ -1,5 +1,5 @@
 'use strict';
-// true
+
 class Vector {
   constructor(x=0, y=0) {
     this.x = x;
@@ -17,7 +17,7 @@ class Vector {
     return new Vector(this.x * multiplierVector, this.y * multiplierVector);
   }
 }
-//true
+
 class Actor {
   constructor(pos = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
     if (!((pos instanceof Vector)&&(size instanceof Vector)&&(speed instanceof Vector))) {
@@ -61,17 +61,13 @@ class Actor {
             this.right > moveActor.left && this.bottom > moveActor.top;
   }
 }
-//true
+
 class Level {
   constructor(grid = [], actors = []) {
-    // лучше создать копию массива - создал
-    const actorsCopy = actors.slice();
-    this.actors = actorsCopy;
+    this.actors = actors.slice();
     this.status = null;
     this.finishDelay = 1;
-    // лучше создать копию массива - создал
-    const gridCopy = grid.slice();
-    this.grid = gridCopy;
+    this.grid = grid.slice();
     this.height = this.grid.length;
     this.width = Math.max(0, ...this.grid.map(element=> element.length));
     this.player = this.actors.find(actor => actor.type === 'player');
@@ -141,12 +137,15 @@ class Level {
     }
   }
 }
-//true ?
+
+const obstaclesDict = {
+  'x': 'wall',
+  '!': 'lava'
+};
+
 class LevelParser {
   constructor(charsDict = {}) {
-    // это не копия объекта, вы с ней ничего не делаете - исправил.
-    const copyDict = Object.assign({}, charsDict);
-    this.actorsLibrary = copyDict;
+    this.actorsLibrary = Object.assign({}, charsDict);
   }
 
   actorFromSymbol(char) {
@@ -154,8 +153,7 @@ class LevelParser {
   }
 
   obstacleFromSymbol(char) {
-    // не нужно создавать объект при каждом вызове функции - исправил.
-    return wallLava[char];
+    return obstaclesDict[char];
   }
 
   createGrid(arrayGrid = []) {
@@ -184,7 +182,7 @@ class LevelParser {
     return new Level(this.createGrid(plan), this.createActors(plan));
   }
 }
-//true
+
 class Fireball extends Actor {
   constructor(position = new Vector(0, 0), speed = new Vector(0, 0)) {
     super(position, new Vector(1, 1), speed);
@@ -211,19 +209,19 @@ class Fireball extends Actor {
     }
   }
 }
-//true
+
 class HorizontalFireball extends Fireball {
   constructor(position) {
     super(position, new Vector(2, 0));
   }
 }
-//true
+
 class VerticalFireball extends Fireball {
   constructor(position) {
     super(position, new Vector(0, 2));
   }
 }
-//true
+
 class FireRain extends Fireball {
   constructor(position) {
     super(position, new Vector(0, 3));
@@ -234,7 +232,7 @@ class FireRain extends Fireball {
     this.pos = this.beginPosition;
   }
 }
-//true
+
 class Coin extends Actor {
   constructor(position = new Vector(0, 0)) {
     const pos = position.plus(new Vector(0.2, 0.1));
@@ -266,22 +264,16 @@ class Coin extends Actor {
     this.pos = this.getNextPosition(time);
   }
 }
-//true
+
 class Player extends Actor {
   constructor(position = new Vector(0, 0)) {
-    const pos = position.plus(new Vector(0, -0.5));
-    super(pos, new Vector(0.8, 1.5));
+    super(position.plus(new Vector(0, -0.5)), new Vector(0.8, 1.5));
   }
 
   get type() {
     return 'player';
   }
 }
-
-const wallLava = {
-  'x': 'wall',
-  '!': 'lava'
-};
 
 const actorDict = {
     '@': Player,
