@@ -14,14 +14,11 @@ class Vector {
   }
 
   times(multiplierVector = 1) {
-    // скобки можно убрать - убрал
     return new Vector(this.x * multiplierVector, this.y * multiplierVector);
   }
 }
 //true
 class Actor {
-  // а зачем у всех аргументов в конце Actor? - чтобы имя переменной было понятней.
-  // если использовать pos, size, speed код станет читаемее - сделал.
   constructor(pos = new Vector(0, 0), size = new Vector(1, 1), speed = new Vector(0, 0)) {
     if (!((pos instanceof Vector)&&(size instanceof Vector)&&(speed instanceof Vector))) {
       throw new Error('Передан не вектор.');
@@ -60,7 +57,6 @@ class Actor {
     if (this === moveActor) {
       return false;
     }
-    // можно убрать скобки - убрал
     return this.left < moveActor.right && this.top < moveActor.bottom &&
             this.right > moveActor.left && this.bottom > moveActor.top;
   }
@@ -69,17 +65,15 @@ class Actor {
 class Level {
   constructor(grid = [], actors = []) {
     // лучше создать копию массива - создал
-    const actorsCopy = actors;
+    const actorsCopy = actors.slice();
     this.actors = actorsCopy;
     this.status = null;
     this.finishDelay = 1;
     // лучше создать копию массива - создал
-    const gridCopy = grid;
+    const gridCopy = grid.slice();
     this.grid = gridCopy;
     this.height = this.grid.length;
-    // Чтобы передать массив в качестве аргументов функции можно вместо apply использовать возможности ES6 помните как? - исправил.
     this.width = Math.max(0, ...this.grid.map(element=> element.length));
-    // если у стрелочной функции один аргумент - скобки не нужны - исправил
     this.player = this.actors.find(actor => actor.type === 'player');
   }
 
@@ -91,7 +85,6 @@ class Level {
     if (!(moveActor instanceof Actor)) {
       throw new Error("Level: actorAt's argument is wrong");
     }
-    // не сообразил про реализацию find. - исправил.
     return this.actors.find(actor => actor.isIntersect(moveActor));
   }
 
@@ -123,7 +116,6 @@ class Level {
   }
 
   removeActor(actor) {
-    // что будет, если объекта не окажется в массиве? - исправил.
     const findInd = this.actors.indexOf(actor);
     if (findInd !== -1) {
       this.actors.splice(findInd, 1)
@@ -131,12 +123,9 @@ class Level {
   }
 
   noMoreActors(typeActor) {
-    // форматирование поехало - исправил.
-    // здесь лучше подходит другой метод, окторый возвращает true или false - исправил.
-    return (!this.actors.some(actor => actor.type === typeActor));
+    return !this.actors.some(actor => actor.type === typeActor);
   }
 
-  // уменьшение вложенности - исправил.
   playerTouched(touched, actor) {
     if (this.status !== null) {
       return
@@ -154,10 +143,9 @@ class Level {
 }
 //true ?
 class LevelParser {
-  // некорректное значение аргумента по-умолчанию, обратите внимание на тип - исправил.
   constructor(charsDict = {}) {
     // это не копия объекта, вы с ней ничего не делаете - исправил.
-    const copyDict = charsDict;
+    const copyDict = Object.assign({}, charsDict);
     this.actorsLibrary = copyDict;
   }
 
@@ -167,18 +155,11 @@ class LevelParser {
 
   obstacleFromSymbol(char) {
     // не нужно создавать объект при каждом вызове функции - исправил.
-    return {'x': 'wall', '!': 'lava'}[char];
+    return wallLava[char];
   }
 
   createGrid(arrayGrid = []) {
-    const grid = [];
-    for (let line of arrayGrid) {
-        const result = [];
-        // обычно строки преобразуют в массив с помощью split - исправил.
-        line.split('').forEach((char) => result.push(this.obstacleFromSymbol(char)));
-        grid.push(result);
-    }
-    return grid;
+    return arrayGrid.map(line => line.split('').map(char => this.obstacleFromSymbol(char)));
   }
 
   createActors(arrayActors = []) {
@@ -186,21 +167,19 @@ class LevelParser {
     arrayActors.forEach((itemY, y) => {
       itemY.split('').forEach((itemX, x) => {
         const constructorActors = this.actorFromSymbol(itemX);
-        let result;
-        // можно обратить условие и return, тогда переменную result можно объявить чуть ниже, ближе к использованию
-        // эту мысль не понял?
-        if (typeof constructorActors === 'function') {
-          result = new constructorActors(new Vector(x, y));
+        // можно обратить условие и return, тогда переменную result можно объявить чуть ниже, ближе к использованию - исправил
+        if (typeof constructorActors !== 'function') {
+          return;
         }
+        const result = new constructorActors(new Vector(x, y));
         if (result instanceof Actor) {
           actors.push(result);
         }
       });
     });
     return actors;
-
   }
-  // не экономьте строки - исправил.
+
   parse(plan) {
     return new Level(this.createGrid(plan), this.createActors(plan));
   }
@@ -260,7 +239,6 @@ class Coin extends Actor {
   constructor(position = new Vector(0, 0)) {
     const pos = position.plus(new Vector(0.2, 0.1));
     super(pos, new Vector(0.6, 0.6));
-    // pos должно задаваться через конструктор родительского класса - исправил
     this.springSpeed = 8;
     this.springDist = 0.07;
     this.spring = Math.random() * 2 * Math.PI;
@@ -293,13 +271,17 @@ class Player extends Actor {
   constructor(position = new Vector(0, 0)) {
     const pos = position.plus(new Vector(0, -0.5));
     super(pos, new Vector(0.8, 1.5));
-    // pos должно задаваться через конструктор родительского класса - исправил.
   }
 
   get type() {
     return 'player';
   }
 }
+
+const wallLava = {
+  'x': 'wall',
+  '!': 'lava'
+};
 
 const actorDict = {
     '@': Player,
